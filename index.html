@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BusReserve Pro - Tamil Nadu & India Bus Booking</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="style.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter','sans-serif'], display: ['Poppins','sans-serif'] },
+                    colors: {
+                        primary: { 50:'#eff6ff',100:'#dbeafe',500:'#3b82f6',600:'#2563eb',700:'#1d4ed8',800:'#1e40af',900:'#1e3a8a',950:'#172554' },
+                        accent: { 400:'#fb923c',500:'#f97316',600:'#ea580c' }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-slate-950 text-white overflow-x-hidden">
+
+<!-- ========== LOGIN MODAL ========== -->
+<div id="loginModal" class="modal-overlay hidden fixed inset-0 z-[100] flex items-center justify-center p-4">
+    <div class="modal-backdrop absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="closeModal('loginModal')"></div>
+    <div class="modal-box relative glass-card rounded-3xl p-8 w-full max-w-md border border-white/20 shadow-2xl">
+        <button onclick="closeModal('loginModal')" class="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors">
+            <i data-lucide="x" class="w-6 h-6"></i>
+        </button>
+        <div class="text-center mb-8">
+            <div class="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center mb-4 shadow-lg shadow-orange-500/30">
+                <i data-lucide="log-in" class="w-7 h-7 text-white"></i>
+            </div>
+            <h2 class="font-display text-2xl font-bold">Welcome Back</h2>
+            <p class="text-gray-400 text-sm mt-1">Login to your BusReserve Pro account</p>
+        </div>
+        <div class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-400 mb-2">Email / Mobile</label>
+                <div class="relative">
+                    <i data-lucide="mail" class="absolute left-4 top-3.5 w-5 h-5 text-orange-500"></i>
+                    <input id="loginEmail" type="text" placeholder="email@example.com or 9XXXXXXXXX"
+                        class="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-orange-500/50 focus:ring-2 focus:ring-orange-500/20 transition-all">
+                </div>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-400 mb-2">Password</label>
+                <div class="relative">
+                    <i data-lucide="lock" class="absolute left-4 top-3.5 w-5 h-5 text-orange-500"></i>
+                    <input id="loginPassword" type="password" placeholder="Enter your password"
+                        class="w-full pl-12 pr-10 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-orange-500/50 focus:ring-2 focus:ring-orange-500/20 transition-all">
+                    <button type="button" onclick="togglePassword('loginPassword')" class="absolute right-4 top-3.5 text-gray-500 hover:text-white">
+                        <i data-lucide="eye" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="flex justify-end">
+                <a href="#" class="text-sm text-orange-500 hover:text-orange-400">Forgot Password?</a>
+            </div>
+            <button onclick="handleLogin()" class="w-full bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white py-3 rounded-xl font-semibold shadow-lg shadow-orange-500/30 transition-all duration-300 flex items-center justify-center gap-2">
+                <i data-lucide="log-in" class="w-5 h-5"></i> Login
+            </button>
+            <div id="loginError" class="hidden text-red-400 text-sm text-center bg-red-500/10 rounded-xl py-2 px-4"></div>
+            <p class="text-center text-sm text-gray-400">Don't have an account? <button onclick="switchToRegister()" class="text-orange-500 hover:text-orange-400 font-medium">Register Now</button></p>
+        </div>
+    </div>
+</div>
+
+<!-- ========== REGISTER MODAL ========== -->
+<div id="registerModal" class="modal-overlay hidden fixed inset-0 z-[100] flex items-center justify-center p-4">
+    <div class="modal-backdrop absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="closeModal('registerModal')"></div>
+    <div class="modal-box relative glass-card rounded-3xl p-8 w-full max-w-md border border-white/20 shadow-2xl max-h-[90vh] overflow-y-auto">
+        <button onclick="closeModal('registerModal')" class="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors">
+            <i data-lucide="x" class="w-6 h-6"></i>
+        </button>
+        <div class="text-center mb-8">
+            <div class="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center mb-4 shadow-lg shadow-orange-500/30">
+                <i data-lucide="user-plus" class="w-7 h-7 text-white"></i>
+            </div>
+            <h2 class="font-display text-2xl font-bold">Create Account</h2>
+            <p class="text-gray-400 text-sm mt-1">Join BusReserve Pro for easy booking</p>
+        </div>
+        <div class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-400 mb-2">Full Name</label>
+                <div class="relative">
+                    <i data-lucide="user" class="absolute left-4 top-3.5 w-5 h-5 text-orange-500"></i>
+                    <input id="regName" type="text" placeholder="Your full name"
+                        class="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-orange-500/50 focus:ring-2 focus:ring-orange-500/20 transition-all">
+                </div>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-400 mb-2">Email</label>
+                <div class="relative">
+                    <i data-lucide="mail" class="absolute left-4 top-3.5 w-5 h-5 text-orange-500"></i>
+                    <input id="regEmail" type="email" placeholder="email@example.com"
+                        class="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-orange-500/50 focus:ring-2 focus:ring-orange-500/20 transition-all">
+                </div>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-400 mb-2">Mobile Number</label>
+                <div class="relative">
+                    <span class="absolute left-4 top-3.5 text-orange-500 text-sm font-medium">+91</span>
+                    <input id="regPhone" type="tel" placeholder="9XXXXXXXXX" maxlength="10"
+                        class="w-full pl-14 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-orange-500/50 focus:ring-2 focus:ring-orange-500/20 transition-all">
+                </div>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-400 mb-2">Password</label>
+                <div class="relative">
+                    <i data-lucide="lock" class="absolute left-4 top-3.5 w-5 h-5 text-orange-500"></i>
+                    <input id="regPassword" type="password" placeholder="Min. 8 characters"
+                        class="w-full pl-12 pr-10 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-orange-500/50 focus:ring-2 focus:ring-orange-500/20 transition-all">
+                    <button type="button" onclick="togglePassword('regPassword')" class="absolute right-4 top-3.5 text-gray-500 hover:text-white">
+                        <i data-lucide="eye" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-400 mb-2">Confirm Password</label>
+                <div class="relative">
+                    <i data-lucide="lock" class="absolute left-4 top-3.5 w-5 h-5 text-orange-500"></i>
+                    <input id="regConfirmPassword" type="password" placeholder="Re-enter password"
+                        class="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-orange-500/50 focus:ring-2 focus:ring-orange-500/20 transition-all">
+                </div>
+            </div>
+            <button onclick="handleRegister()" class="w-full bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white py-3 rounded-xl font-semibold shadow-lg shadow-orange-500/30 transition-all duration-300 flex items-center justify-center gap-2">
+                <i data-lucide="user-plus" class="w-5 h-5"></i> Create Account
+            </button>
+            <div id="regError" class="hidden text-red-400 text-sm text-center bg-red-500/10 rounded-xl py-2 px-4"></div>
+            <p class="text-center text-sm text-gray-400">Already have an account? <button onclick="switchToLogin()" class="text-orange-500 hover:text-orange-400 font-medium">Login</button></p>
+        </div>
+    </div>
+</div>
+
+<!-- ========== SEAT SELECTION MODAL ========== -->
+<div id="seatModal" class="modal-overlay hidden fixed inset-0 z-[100] flex items-center justify-center p-4">
+    <div class="modal-backdrop absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
+    <div class="modal-box relative glass-card rounded-3xl w-full max-w-2xl border border-white/20 shadow-2xl max-h-[90vh] overflow-y-auto">
+        <div class="sticky top-0 glass-card border-b border-white/10 p-6 flex items-center justify-between rounded-t-3xl z-10">
+            <div>
+                <h2 class="font-display text-xl font-bold">Select Your Seats</h2>
+                <p id="seatBusName" class="text-gray-400 text-sm"></p>
+            </div>
+            <button onclick="closeModal('seatModal')" class="text-gray-400 hover:text-white transition-colors">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+        </div>
+        <div class="p-6">
+            <!-- Legend -->
+            <div class="flex items-center gap-6 mb-6 flex-wrap">
+                <div class="flex items-center gap-2"><div class="w-6 h-6 rounded bg-green-500/20 border border-green-500"></div><span class="text-sm text-gray-300">Available</span></div>
+                <div class="flex items-center gap-2"><div class="w-6 h-6 rounded bg-red-500/20 border border-red-500"></div><span class="text-sm text-gray-300">Booked</span></div>
+                <div class="flex items-center gap-2"><div class="w-6 h-6 rounded bg-orange-500 border border-orange-600"></div><span class="text-sm text-gray-300">Selected</span></div>
+            </div>
+            <!-- Bus Front Indicator -->
+            <div class="flex items-center gap-2 mb-4 text-gray-400 text-sm">
+                <i data-lucide="bus" class="w-4 h-4"></i><span>Front of the bus</span>
+                <div class="flex-1 h-px bg-white/10"></div>
+            </div>
+            <!-- Seat Map -->
+            <div id="seatMap" class="seat-map-container mb-6"></div>
+            <!-- Selected Info -->
+            <div id="seatInfo" class="hidden glass-card rounded-2xl p-4 border border-orange-500/30 mb-6">
+                <div class="flex items-center justify-between flex-wrap gap-3">
+                    <div>
+                        <p class="text-sm text-gray-400">Selected Seats</p>
+                        <p id="selectedSeatsList" class="font-bold text-orange-400 text-lg"></p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-400">Total Fare</p>
+                        <p id="selectedSeatsTotal" class="font-bold text-white text-xl">₹0</p>
+                    </div>
+                </div>
+            </div>
+            <button onclick="proceedToPassengerDetails()" id="seatNextBtn" disabled
+                class="w-full bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 disabled:opacity-40 disabled:cursor-not-allowed text-white py-3 rounded-xl font-semibold transition-all flex items-center justify-center gap-2">
+                Continue to Passenger Details <i data-lucide="arrow-right" class="w-5 h-5"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ========== PASSENGER DETAILS MODAL ========== -->
+<div id="passengerModal" class="modal-overlay hidden fixed inset-0 z-[100] flex items-center justify-center p-4">
+    <div class="modal-backdrop absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
+    <div class="modal-box relative glass-card rounded-3xl w-full max-w-lg border border-white/20 shadow-2xl max-h-[90vh] overflow-y-auto">
+        <div class="sticky top-0 glass-card border-b border-white/10 p-6 flex items-center justify-between rounded-t-3xl z-10">
+            <div>
+                <h2 class="font-display text-xl font-bold">Passenger Details</h2>
+                <p class="text-gray-400 text-sm">Fill details for each passenger</p>
+            </div>
+            <button onclick="closeModal('passengerModal')" class="text-gray-400 hover:text-white transition-colors">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+        </div>
+        <div class="p-6">
+            <!-- Contact Info -->
+            <div class="glass-card rounded-2xl p-4 border border-white/10 mb-6">
+                <h3 class="font-semibold mb-3 text-sm text-gray-300 uppercase tracking-wider">Contact Information</h3>
+                <div class="space-y-3">
+                    <div class="relative">
+                        <i data-lucide="mail" class="absolute left-4 top-3.5 w-4 h-4 text-orange-500"></i>
+                        <input id="contactEmail" type="email" placeholder="Email for ticket"
+                            class="w-full pl-11 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-sm placeholder-gray-500 focus:outline-none focus:border-orange-500/50 transition-all">
+                    </div>
+                    <div class="relative">
+                        <span class="absolute left-4 top-3.5 text-orange-500 text-xs font-medium">+91</span>
+                        <input id="contactPhone" type="tel" placeholder="Mobile number" maxlength="10"
+                            class="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-sm placeholder-gray-500 focus:outline-none focus:border-orange-500/50 transition-all">
+                    </div>
+                </div>
+            </div>
+            <!-- Passenger Forms -->
+            <div id="passengerForms" class="space-y-4 mb-6"></div>
+            <button onclick="proceedToPayment()" id="passengerNextBtn"
+                class="w-full bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white py-3 rounded-xl font-semibold transition-all flex items-center justify-center gap-2">
+                Proceed to Payment <i data-lucide="arrow-right" class="w-5 h-5"></i>
+            </button>
+            <div id="passengerError" class="hidden mt-3 text-red-400 text-sm text-center bg-red-500/10 rounded-xl py-2 px-4"></div>
+        </div>
+    </div>
+</div>
+
+<!-- ========== PAYMENT MODAL ========== -->
+<div id="paymentModal" class="modal-overlay hidden fixed inset-0 z-[100] flex items-center justify-center p-4">
+    <div class="modal-backdrop absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
+    <div class="modal-box relative glass-card rounded-3xl w-full max-w-lg border border-white/20 shadow-2xl max-h-[90vh] overflow-y-auto">
+        <div class="sticky top-0 glass-card border-b border-white/10 p-6 flex items-center justify-between rounded-t-3xl z-10">
+            <div>
+                <h2 class="font-display text-xl font-bold">Payment</h2>
+                <p class="text-gray-400 text-sm">Secure & Encrypted Payment</p>
+            </div>
+            <button onclick="closeModal('paymentModal')" class="text-gray-400 hover:text-white transition-colors">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+        </div>
+        <div class="p-6">
+            <!-- Fare Summary -->
+            <div id="fareSummary" class="glass-card rounded-2xl p-4 border border-white/10 mb-6"></div>
+            <!-- Payment Methods -->
+            <h3 class="font-semibold mb-3 text-sm text-gray-300 uppercase tracking-wider">Select Payment Method</h3>
+            <div class="space-y-3 mb-6">
+                <label class="payment-method-option glass-card rounded-xl p-4 border border-white/10 flex items-center gap-4 cursor-pointer hover:border-orange-500/50 transition-all">
+                    <input type="radio" name="paymentMethod" value="upi" class="sr-only" onchange="updatePaymentUI('upi')">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-teal-600 flex items-center justify-center flex-shrink-0">
+                        <i data-lucide="smartphone" class="w-5 h-5 text-white"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="font-semibold text-sm">UPI Payment</p>
+                        <p class="text-xs text-gray-400">GPay, PhonePe, Paytm, BHIM</p>
+                    </div>
+                    <div class="payment-radio-indicator w-5 h-5 rounded-full border-2 border-white/30 flex items-center justify-center flex-shrink-0"></div>
+                </label>
+                <label class="payment-method-option glass-card rounded-xl p-4 border border-white/10 flex items-center gap-4 cursor-pointer hover:border-orange-500/50 transition-all">
+                    <input type="radio" name="paymentMethod" value="card" class="sr-only" onchange="updatePaymentUI('card')">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center flex-shrink-0">
+                        <i data-lucide="credit-card" class="w-5 h-5 text-white"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="font-semibold text-sm">Credit / Debit Card</p>
+                        <p class="text-xs text-gray-400">Visa, MasterCard, RuPay</p>
+                    </div>
+                    <div class="payment-radio-indicator w-5 h-5 rounded-full border-2 border-white/30 flex items-center justify-center flex-shrink-0"></div>
+                </label>
+                <label class="payment-method-option glass-card rounded-xl p-4 border border-white/10 flex items-center gap-4 cursor-pointer hover:border-orange-500/50 transition-all">
+                    <input type="radio" name="paymentMethod" value="netbanking" class="sr-only" onchange="updatePaymentUI('netbanking')">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center flex-shrink-0">
+                        <i data-lucide="landmark" class="w-5 h-5 text-white"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="font-semibold text-sm">Net Banking</p>
+                        <p class="text-xs text-gray-400">SBI, HDFC, ICICI, Axis & more</p>
+                    </div>
+                    <div class="payment-radio-indicator w-5 h-5 rounded-full border-2 border-white/30 flex items-center justify-center flex-shrink-0"></div>
+                </label>
+            </div>
+            <!-- Payment Input Area -->
+            <div id="paymentInputArea" class="mb-6"></div>
+            <!-- Pay Button -->
+            <button onclick="handlePayment()" id="payNowBtn"
+                class="w-full bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white py-3.5 rounded-xl font-bold transition-all flex items-center justify-center gap-2 shadow-lg shadow-orange-500/30">
+                <i data-lucide="lock" class="w-5 h-5"></i>
+                <span id="payNowText">Pay Now</span>
+            </button>
+            <p class="text-center text-xs text-gray-500 mt-3 flex items-center justify-center gap-1">
+                <i data-lucide="shield-check" class="w-3 h-3"></i> 100% Secure. SSL Encrypted. PCI-DSS Compliant.
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- ========== E-TICKET MODAL ========== -->
+<div id="ticketModal" class="modal-overlay hidden fixed inset-0 z-[100] flex items-center justify-center p-4">
+    <div class="modal-backdrop absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
+    <div class="modal-box relative w-full max-w-lg max-h-[90vh] overflow-y-auto">
+        <div class="glass-card rounded-3xl border border-white/20 shadow-2xl overflow-hidden">
+            <!-- Ticket Header -->
+            <div class="bg-gradient-to-r from-orange-600 to-red-700 p-6">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
+                            <i data-lucide="bus" class="w-6 h-6 text-white"></i>
+                        </div>
+                        <span class="font-display font-bold text-xl text-white">BusReserve<span class="text-white/70">Pro</span></span>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-xs text-white/70">Booking Status</p>
+                        <span class="bg-green-400 text-slate-900 text-xs font-bold px-3 py-1 rounded-full">CONFIRMED</span>
+                    </div>
+                </div>
+            </div>
+            <!-- Ticket Body -->
+            <div id="ticketBody" class="bg-slate-900 p-6"></div>
+            <!-- Ticket Footer -->
+            <div class="bg-slate-800/50 px-6 py-4 flex gap-3">
+                <button onclick="printTicket()" class="flex-1 bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white py-3 rounded-xl font-semibold transition-all flex items-center justify-center gap-2">
+                    <i data-lucide="printer" class="w-5 h-5"></i> Print / Save PDF
+                </button>
+                <button onclick="closeModal('ticketModal'); resetBooking();" class="px-6 py-3 rounded-xl font-semibold border border-white/20 hover:bg-white/10 transition-all text-sm">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========== NAVBAR ========== -->
+<nav id="navbar" class="fixed w-full z-50 transition-all duration-300 top-0">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-20">
+            <div class="flex-shrink-0 flex items-center gap-3 cursor-pointer group" onclick="scrollToTop()">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center shadow-lg shadow-orange-500/30 group-hover:scale-110 transition-transform duration-300">
+                    <i data-lucide="bus" class="w-6 h-6 text-white"></i>
+                </div>
+                <span class="font-display font-bold text-2xl bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
+                    BusReserve<span class="text-orange-500">Pro</span>
+                </span>
+            </div>
+            <div class="hidden md:block">
+                <div class="ml-10 flex items-baseline space-x-8">
+                    <a href="#home" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-white hover:text-orange-400 transition-colors relative group">Home<span class="absolute bottom-0 left-0 w-0 h-0.5 bg-orange-500 transition-all duration-300 group-hover:w-full"></span></a>
+                    <a href="#book" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-orange-400 transition-colors relative group">Book Ticket<span class="absolute bottom-0 left-0 w-0 h-0.5 bg-orange-500 transition-all duration-300 group-hover:w-full"></span></a>
+                    <a href="#routes" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-orange-400 transition-colors relative group">Routes<span class="absolute bottom-0 left-0 w-0 h-0.5 bg-orange-500 transition-all duration-300 group-hover:w-full"></span></a>
+                    <a href="#about" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-orange-400 transition-colors relative group">About<span class="absolute bottom-0 left-0 w-0 h-0.5 bg-orange-500 transition-all duration-300 group-hover:w-full"></span></a>
+                    <a href="#contact" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-orange-400 transition-colors relative group">Contact<span class="absolute bottom-0 left-0 w-0 h-0.5 bg-orange-500 transition-all duration-300 group-hover:w-full"></span></a>
+                </div>
+            </div>
+            <div class="hidden md:flex items-center gap-4">
+                <!-- Guest Buttons -->
+                <div id="guestButtons">
+                    <button onclick="openModal('loginModal')" class="text-gray-300 hover:text-white font-medium text-sm transition-colors mr-4">Login</button>
+                    <button onclick="openModal('registerModal')" class="bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white px-6 py-2.5 rounded-full font-medium text-sm shadow-lg shadow-orange-500/30 hover:shadow-orange-500/50 transform hover:-translate-y-0.5 transition-all duration-300">Register</button>
+                </div>
+                <!-- Logged In User -->
+                <div id="userMenu" class="hidden flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-full bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center font-bold text-sm" id="userAvatar">U</div>
+                    <span id="userName" class="text-sm font-medium text-white"></span>
+                    <button onclick="handleLogout()" class="text-gray-400 hover:text-white text-sm transition-colors ml-2">Logout</button>
+                </div>
+            </div>
+            <div class="md:hidden">
+                <button id="mobile-menu-btn" class="text-gray-300 hover:text-white p-2 rounded-md transition-colors">
+                    <i data-lucide="menu" class="w-6 h-6"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    <div id="mobile-menu" class="hidden md:hidden glass-card mx-4 mt-2 rounded-2xl border border-white/10">
+        <div class="px-4 pt-2 pb-6 space-y-2">
+            <a href="#home" class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-white/10 transition-colors">Home</a>
+            <a href="#book" class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-white/10 transition-colors">Book Ticket</a>
+            <a href="#routes" class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-white/10 transition-colors">Routes</a>
+            <a href="#about" class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-white/10 transition-colors">About</a>
+            <a href="#contact" class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-white/10 transition-colors">Contact</a>
+            <div class="pt-4 flex flex-col gap-3">
+                <button onclick="openModal('loginModal')" class="w-full text-center text-gray-300 hover:text-white font-medium py-2 border border-white/20 rounded-lg transition-colors">Login</button>
+                <button onclick="openModal('registerModal')" class="w-full bg-gradient-to-r from-orange-500 to-red-600 text-white py-2.5 rounded-lg font-medium shadow-lg">Register</button>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- ========== HERO SECTION ========== -->
+<section id="home" class="relative min-h-screen flex items-center pt-20 overflow-hidden">
+    <div class="absolute inset-0 bg-slate-950">
+        <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-orange-900/40 via-slate-950 to-slate-950"></div>
+        <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-blue-900/20 via-slate-950 to-slate-950"></div>
+        <div class="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:100px_100px] [mask-image:radial-gradient(ellipse_at_center,black,transparent_70%)]"></div>
+    </div>
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 w-full">
+        <div class="grid lg:grid-cols-2 gap-12 items-center">
+            <!-- Hero Content -->
+            <div class="space-y-8 animate-fade-in-up">
+                <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm">
+                    <span class="flex h-2 w-2 rounded-full bg-orange-500 animate-pulse"></span>
+                    <span class="text-sm font-medium text-gray-300">Tamil Nadu's #1 Bus Booking Platform</span>
+                </div>
+                <h1 class="font-display text-5xl md:text-6xl lg:text-7xl font-bold leading-tight">
+                    Book Tamil Nadu Buses<br>
+                    <span class="bg-gradient-to-r from-orange-400 via-orange-500 to-red-500 bg-clip-text text-transparent">Fast & Hassle-Free</span>
+                </h1>
+                <p class="text-lg text-gray-400 max-w-xl leading-relaxed">
+                    From Coimbatore to Chennai, Madurai to Bangalore — book SETC, KPN, SRS, Parveen Travels and more. Real-time seats, instant e-tickets, secure payments.
+                </p>
+                <div class="flex flex-wrap gap-4">
+                    <button onclick="document.getElementById('book').scrollIntoView({behavior:'smooth'})" class="group bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white px-8 py-4 rounded-full font-semibold shadow-lg shadow-orange-500/30 hover:shadow-orange-500/50 transform hover:-translate-y-1 transition-all duration-300 flex items-center gap-2">
+                        Book Now <i data-lucide="arrow-right" class="w-5 h-5 group-hover:translate-x-1 transition-transform"></i>
+                    </button>
+                    <button onclick="document.querySelector('.how-it-works').scrollIntoView({behavior:'smooth'})" class="px-8 py-4 rounded-full font-semibold border border-white/20 hover:bg-white/5 backdrop-blur-sm transition-all duration-300 flex items-center gap-2">
+                        <i data-lucide="play-circle" class="w-5 h-5 text-orange-500"></i> How it Works
+                    </button>
+                </div>
+                <div class="grid grid-cols-3 gap-6 pt-8 border-t border-white/10">
+                    <div><div class="text-3xl font-bold text-white">150+</div><div class="text-sm text-gray-500">Bus Operators</div></div>
+                    <div><div class="text-3xl font-bold text-white">5L+</div><div class="text-sm text-gray-500">Happy Passengers</div></div>
+                    <div><div class="text-3xl font-bold text-white">100%</div><div class="text-sm text-gray-500">Secure Payments</div></div>
+                </div>
+            </div>
+
+            <!-- Booking Form -->
+            <div id="book" class="relative animate-fade-in-up animation-delay-200">
+                <div class="absolute -inset-1 bg-gradient-to-r from-orange-500 to-blue-600 rounded-3xl blur opacity-30"></div>
+                <div class="relative glass-card rounded-3xl p-8 border border-white/20 shadow-2xl">
+                    <h3 class="text-2xl font-display font-bold mb-6 text-white">Find Your Bus</h3>
+                    <div class="space-y-5">
+                        <!-- From City -->
+                        <div class="relative">
+                            <label class="block text-sm font-medium text-gray-400 mb-2">From</label>
+                            <div class="relative city-dropdown-wrapper">
+                                <i data-lucide="map-pin" class="absolute left-4 top-3.5 w-5 h-5 text-orange-500 z-10"></i>
+                                <input type="text" id="fromCity" placeholder="Departure City (e.g. Coimbatore)" autocomplete="off"
+                                    class="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-orange-500/50 focus:ring-2 focus:ring-orange-500/20 transition-all cursor-pointer"
+                                    oninput="filterCities('fromCity','fromDropdown')" onfocus="showDropdown('fromDropdown')" readonly onclick="this.readOnly=false;filterCities('fromCity','fromDropdown')">
+                                <div id="fromDropdown" class="city-dropdown hidden absolute top-full left-0 right-0 mt-1 z-50"></div>
+                            </div>
+                        </div>
+                        <!-- Swap Button -->
+                        <div class="flex items-center justify-center">
+                            <button onclick="swapCities()" class="w-10 h-10 rounded-full bg-white/5 border border-white/10 hover:bg-orange-500/20 hover:border-orange-500/50 flex items-center justify-center transition-all group" title="Swap cities">
+                                <i data-lucide="arrow-up-down" class="w-5 h-5 text-gray-400 group-hover:text-orange-500 transition-colors"></i>
+                            </button>
+                        </div>
+                        <!-- To City -->
+                        <div class="relative" style="margin-top: -0.5rem;">
+                            <label class="block text-sm font-medium text-gray-400 mb-2">To</label>
+                            <div class="relative city-dropdown-wrapper">
+                                <i data-lucide="navigation" class="absolute left-4 top-3.5 w-5 h-5 text-blue-500 z-10"></i>
+                                <input type="text" id="toCity" placeholder="Destination City (e.g. Chennai)" autocomplete="off"
+                                    class="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20 transition-all cursor-pointer"
+                                    oninput="filterCities('toCity','toDropdown')" onfocus="showDropdown('toDropdown')" readonly onclick="this.readOnly=false;filterCities('toCity','toDropdown')">
+                                <div id="toDropdown" class="city-dropdown hidden absolute top-full left-0 right-0 mt-1 z-50"></div>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-400 mb-2">Date</label>
+                                <div class="relative">
+                                    <i data-lucide="calendar" class="absolute left-4 top-3.5 w-5 h-5 text-purple-500"></i>
+                                    <input type="date" id="journeyDate"
+                                        class="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 transition-all hover:bg-white/10 [color-scheme:dark]">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-400 mb-2">Passengers</label>
+                                <div class="relative">
+                                    <i data-lucide="users" class="absolute left-4 top-3.5 w-5 h-5 text-green-500"></i>
+                                    <select id="passengerCount" class="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-green-500/50 focus:ring-2 focus:ring-green-500/20 transition-all hover:bg-white/10 appearance-none cursor-pointer">
+                                        <option value="1" class="bg-slate-900">1 Passenger</option>
+                                        <option value="2" class="bg-slate-900">2 Passengers</option>
+                                        <option value="3" class="bg-slate-900">3 Passengers</option>
+                                        <option value="4" class="bg-slate-900">4 Passengers</option>
+                                        <option value="5" class="bg-slate-900">5 Passengers</option>
+                                        <option value="6" class="bg-slate-900">6 Passengers</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="searchError" class="hidden text-red-400 text-xs bg-red-500/10 rounded-lg px-3 py-2"></div>
+                        <button onclick="searchBuses()" id="searchBtn"
+                            class="w-full bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white py-4 rounded-xl font-semibold shadow-lg shadow-orange-500/30 hover:shadow-orange-500/50 transition-all duration-300 flex items-center justify-center gap-2 text-lg btn-ripple animate-pulse-glow">
+                            <i data-lucide="search" class="w-5 h-5"></i> Search Buses
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ========== BUS RESULTS SECTION ========== -->
+<section id="busResults" class="hidden py-16 bg-slate-950 relative">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Results Header -->
+        <div class="flex items-center justify-between flex-wrap gap-4 mb-8">
+            <div>
+                <h2 class="font-display text-2xl font-bold" id="resultsTitle">Available Buses</h2>
+                <p class="text-gray-400 text-sm mt-1" id="resultsSubtitle"></p>
+            </div>
+            <!-- Filters -->
+            <div class="flex items-center gap-3 flex-wrap">
+                <select id="filterType" onchange="applyFilters()" class="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-white text-sm focus:outline-none focus:border-orange-500/50 [color-scheme:dark]">
+                    <option value="all">All Types</option>
+                    <option value="ac">AC Only</option>
+                    <option value="sleeper">Sleeper</option>
+                    <option value="semisleeper">Semi-Sleeper</option>
+                    <option value="seater">Seater</option>
+                </select>
+                <select id="sortBy" onchange="applyFilters()" class="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-white text-sm focus:outline-none focus:border-orange-500/50 [color-scheme:dark]">
+                    <option value="departure">Sort: Departure</option>
+                    <option value="price-low">Price: Low to High</option>
+                    <option value="price-high">Price: High to Low</option>
+                    <option value="rating">Rating</option>
+                </select>
+            </div>
+        </div>
+        <!-- Results List -->
+        <div id="busList" class="space-y-4"></div>
+    </div>
+</section>
+
+<!-- ========== POPULAR ROUTES ========== -->
+<section id="routes" class="py-24 relative bg-slate-900/30">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+            <h2 class="font-display text-4xl md:text-5xl font-bold mb-4">Popular <span class="text-orange-500">Routes</span></h2>
+            <p class="text-gray-400">Top routes from Tamil Nadu — Click to book</p>
+        </div>
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Route 1 -->
+            <div onclick="quickBookRoute('Coimbatore','Chennai')" class="group route-card relative overflow-hidden rounded-2xl cursor-pointer glass-card border border-white/10 hover:border-orange-500/30 transition-all duration-300 hover-lift p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <span class="text-xs font-semibold text-orange-400 bg-orange-500/10 px-3 py-1 rounded-full flex items-center gap-1"><i data-lucide="trending-up" class="w-3 h-3"></i> Most Popular</span>
+                    <span class="text-xs text-gray-500">~495 km</span>
+                </div>
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="text-center"><p class="font-bold text-lg text-white">Coimbatore</p><p class="text-xs text-gray-500">CBE</p></div>
+                    <div class="flex-1 flex items-center gap-1"><div class="flex-1 h-px bg-gradient-to-r from-orange-500 to-red-500"></div><i data-lucide="bus" class="w-4 h-4 text-orange-500"></i><div class="flex-1 h-px bg-gradient-to-r from-red-500 to-orange-500"></div></div>
+                    <div class="text-center"><p class="font-bold text-lg text-white">Chennai</p><p class="text-xs text-gray-500">MAS</p></div>
+                </div>
+                <div class="flex items-center justify-between">
+                    <div><p class="text-xs text-gray-400">Starting from</p><p class="text-xl font-bold text-white">₹480</p></div>
+                    <div class="text-right"><p class="text-xs text-gray-400">Duration</p><p class="text-sm font-semibold text-gray-300">~8h 30m</p></div>
+                    <div class="w-10 h-10 rounded-full bg-orange-500 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg shadow-orange-500/50"><i data-lucide="arrow-right" class="w-5 h-5 text-white"></i></div>
+                </div>
+            </div>
+            <!-- Route 2 -->
+            <div onclick="quickBookRoute('Coimbatore','Bangalore')" class="group route-card relative overflow-hidden rounded-2xl cursor-pointer glass-card border border-white/10 hover:border-blue-500/30 transition-all duration-300 hover-lift p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <span class="text-xs font-semibold text-blue-400 bg-blue-500/10 px-3 py-1 rounded-full flex items-center gap-1"><i data-lucide="clock" class="w-3 h-3"></i> ~6h 30m</span>
+                    <span class="text-xs text-gray-500">~360 km</span>
+                </div>
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="text-center"><p class="font-bold text-lg text-white">Coimbatore</p><p class="text-xs text-gray-500">CBE</p></div>
+                    <div class="flex-1 flex items-center gap-1"><div class="flex-1 h-px bg-gradient-to-r from-blue-500 to-purple-500"></div><i data-lucide="bus" class="w-4 h-4 text-blue-500"></i><div class="flex-1 h-px bg-gradient-to-r from-purple-500 to-blue-500"></div></div>
+                    <div class="text-center"><p class="font-bold text-lg text-white">Bangalore</p><p class="text-xs text-gray-500">BLR</p></div>
+                </div>
+                <div class="flex items-center justify-between">
+                    <div><p class="text-xs text-gray-400">Starting from</p><p class="text-xl font-bold text-white">₹350</p></div>
+                    <div class="text-right"><p class="text-xs text-gray-400">Buses/day</p><p class="text-sm font-semibold text-gray-300">25+</p></div>
+                    <div class="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg shadow-blue-500/50"><i data-lucide="arrow-right" class="w-5 h-5 text-white"></i></div>
+                </div>
+            </div>
+            <!-- Route 3 -->
+            <div onclick="quickBookRoute('Chennai','Madurai')" class="group route-card relative overflow-hidden rounded-2xl cursor-pointer glass-card border border-white/10 hover:border-purple-500/30 transition-all duration-300 hover-lift p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <span class="text-xs font-semibold text-purple-400 bg-purple-500/10 px-3 py-1 rounded-full flex items-center gap-1"><i data-lucide="star" class="w-3 h-3"></i> Top Rated</span>
+                    <span class="text-xs text-gray-500">~462 km</span>
+                </div>
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="text-center"><p class="font-bold text-lg text-white">Chennai</p><p class="text-xs text-gray-500">MAS</p></div>
+                    <div class="flex-1 flex items-center gap-1"><div class="flex-1 h-px bg-gradient-to-r from-purple-500 to-pink-500"></div><i data-lucide="bus" class="w-4 h-4 text-purple-500"></i><div class="flex-1 h-px bg-gradient-to-r from-pink-500 to-purple-500"></div></div>
+                    <div class="text-center"><p class="font-bold text-lg text-white">Madurai</p><p class="text-xs text-gray-500">MDU</p></div>
+                </div>
+                <div class="flex items-center justify-between">
+                    <div><p class="text-xs text-gray-400">Starting from</p><p class="text-xl font-bold text-white">₹400</p></div>
+                    <div class="text-right"><p class="text-xs text-gray-400">Duration</p><p class="text-sm font-semibold text-gray-300">~8h</p></div>
+                    <div class="w-10 h-10 rounded-full bg-purple-500 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg shadow-purple-500/50"><i data-lucide="arrow-right" class="w-5 h-5 text-white"></i></div>
+                </div>
+            </div>
+            <!-- Route 4 -->
+            <div onclick="quickBookRoute('Coimbatore','Kochi')" class="group route-card relative overflow-hidden rounded-2xl cursor-pointer glass-card border border-white/10 hover:border-green-500/30 transition-all duration-300 hover-lift p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <span class="text-xs font-semibold text-green-400 bg-green-500/10 px-3 py-1 rounded-full flex items-center gap-1"><i data-lucide="zap" class="w-3 h-3"></i> Fast Route</span>
+                    <span class="text-xs text-gray-500">~190 km</span>
+                </div>
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="text-center"><p class="font-bold text-lg text-white">Coimbatore</p><p class="text-xs text-gray-500">CBE</p></div>
+                    <div class="flex-1 flex items-center gap-1"><div class="flex-1 h-px bg-gradient-to-r from-green-500 to-teal-500"></div><i data-lucide="bus" class="w-4 h-4 text-green-500"></i><div class="flex-1 h-px bg-gradient-to-r from-teal-500 to-green-500"></div></div>
+                    <div class="text-center"><p class="font-bold text-lg text-white">Kochi</p><p class="text-xs text-gray-500">COK</p></div>
+                </div>
+                <div class="flex items-center justify-between">
+                    <div><p class="text-xs text-gray-400">Starting from</p><p class="text-xl font-bold text-white">₹250</p></div>
+                    <div class="text-right"><p class="text-xs text-gray-400">Duration</p><p class="text-sm font-semibold text-gray-300">~4h</p></div>
+                    <div class="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg shadow-green-500/50"><i data-lucide="arrow-right" class="w-5 h-5 text-white"></i></div>
+                </div>
+            </div>
+            <!-- Route 5 -->
+            <div onclick="quickBookRoute('Chennai','Tirupati')" class="group route-card relative overflow-hidden rounded-2xl cursor-pointer glass-card border border-white/10 hover:border-yellow-500/30 transition-all duration-300 hover-lift p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <span class="text-xs font-semibold text-yellow-400 bg-yellow-500/10 px-3 py-1 rounded-full flex items-center gap-1"><i data-lucide="map-pin" class="w-3 h-3"></i> Pilgrimage</span>
+                    <span class="text-xs text-gray-500">~150 km</span>
+                </div>
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="text-center"><p class="font-bold text-lg text-white">Chennai</p><p class="text-xs text-gray-500">MAS</p></div>
+                    <div class="flex-1 flex items-center gap-1"><div class="flex-1 h-px bg-gradient-to-r from-yellow-500 to-amber-500"></div><i data-lucide="bus" class="w-4 h-4 text-yellow-500"></i><div class="flex-1 h-px bg-gradient-to-r from-amber-500 to-yellow-500"></div></div>
+                    <div class="text-center"><p class="font-bold text-lg text-white">Tirupati</p><p class="text-xs text-gray-500">TPTY</p></div>
+                </div>
+                <div class="flex items-center justify-between">
+                    <div><p class="text-xs text-gray-400">Starting from</p><p class="text-xl font-bold text-white">₹180</p></div>
+                    <div class="text-right"><p class="text-xs text-gray-400">Duration</p><p class="text-sm font-semibold text-gray-300">~3h</p></div>
+                    <div class="w-10 h-10 rounded-full bg-yellow-500 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg shadow-yellow-500/50"><i data-lucide="arrow-right" class="w-5 h-5 text-white"></i></div>
+                </div>
+            </div>
+            <!-- Route 6 -->
+            <div onclick="quickBookRoute('Madurai','Mumbai')" class="group route-card relative overflow-hidden rounded-2xl cursor-pointer glass-card border border-white/10 hover:border-red-500/30 transition-all duration-300 hover-lift p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <span class="text-xs font-semibold text-red-400 bg-red-500/10 px-3 py-1 rounded-full flex items-center gap-1"><i data-lucide="train" class="w-3 h-3"></i> Long Route</span>
+                    <span class="text-xs text-gray-500">~1600 km</span>
+                </div>
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="text-center"><p class="font-bold text-lg text-white">Madurai</p><p class="text-xs text-gray-500">MDU</p></div>
+                    <div class="flex-1 flex items-center gap-1"><div class="flex-1 h-px bg-gradient-to-r from-red-500 to-rose-500"></div><i data-lucide="bus" class="w-4 h-4 text-red-500"></i><div class="flex-1 h-px bg-gradient-to-r from-rose-500 to-red-500"></div></div>
+                    <div class="text-center"><p class="font-bold text-lg text-white">Mumbai</p><p class="text-xs text-gray-500">MUM</p></div>
+                </div>
+                <div class="flex items-center justify-between">
+                    <div><p class="text-xs text-gray-400">Starting from</p><p class="text-xl font-bold text-white">₹1,800</p></div>
+                    <div class="text-right"><p class="text-xs text-gray-400">Duration</p><p class="text-sm font-semibold text-gray-300">~30h</p></div>
+                    <div class="w-10 h-10 rounded-full bg-red-500 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg shadow-red-500/50"><i data-lucide="arrow-right" class="w-5 h-5 text-white"></i></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ========== FEATURES ========== -->
+<section id="about" class="py-24 bg-slate-950 relative">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+            <h2 class="font-display text-4xl md:text-5xl font-bold mb-4">Why Choose <span class="text-orange-500">Us?</span></h2>
+            <p class="text-gray-400">Everything you need for a smooth bus journey</p>
+        </div>
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div class="glass-card rounded-2xl p-6 border border-white/10 hover-lift group">
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center mb-4 shadow-lg shadow-orange-500/30 group-hover:scale-110 transition-transform"><i data-lucide="ticket" class="w-6 h-6 text-white"></i></div>
+                <h3 class="font-bold text-xl mb-2">Instant E-Tickets</h3>
+                <p class="text-gray-400 text-sm">Get your confirmed e-ticket via SMS & email instantly after payment. Download PDF anytime.</p>
+            </div>
+            <div class="glass-card rounded-2xl p-6 border border-white/10 hover-lift group">
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center mb-4 shadow-lg shadow-blue-500/30 group-hover:scale-110 transition-transform"><i data-lucide="armchair" class="w-6 h-6 text-white"></i></div>
+                <h3 class="font-bold text-xl mb-2">Live Seat Selection</h3>
+                <p class="text-gray-400 text-sm">Choose your preferred seat from a live, real-time seat map. Window, aisle — your pick.</p>
+            </div>
+            <div class="glass-card rounded-2xl p-6 border border-white/10 hover-lift group">
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-teal-600 flex items-center justify-center mb-4 shadow-lg shadow-green-500/30 group-hover:scale-110 transition-transform"><i data-lucide="shield-check" class="w-6 h-6 text-white"></i></div>
+                <h3 class="font-bold text-xl mb-2">100% Secure Payments</h3>
+                <p class="text-gray-400 text-sm">UPI, cards, net banking — all payments are SSL encrypted and PCI-DSS compliant.</p>
+            </div>
+            <div class="glass-card rounded-2xl p-6 border border-white/10 hover-lift group">
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center mb-4 shadow-lg shadow-purple-500/30 group-hover:scale-110 transition-transform"><i data-lucide="rotate-ccw" class="w-6 h-6 text-white"></i></div>
+                <h3 class="font-bold text-xl mb-2">Easy Cancellation</h3>
+                <p class="text-gray-400 text-sm">Cancel up to 2 hours before departure. Refund processed within 3–5 business days.</p>
+            </div>
+            <div class="glass-card rounded-2xl p-6 border border-white/10 hover-lift group">
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-yellow-500 to-orange-600 flex items-center justify-center mb-4 shadow-lg shadow-yellow-500/30 group-hover:scale-110 transition-transform"><i data-lucide="headphones" class="w-6 h-6 text-white"></i></div>
+                <h3 class="font-bold text-xl mb-2">24/7 Tamil Support</h3>
+                <p class="text-gray-400 text-sm">Customer support available in Tamil & English. Call, chat, or WhatsApp anytime.</p>
+            </div>
+            <div class="glass-card rounded-2xl p-6 border border-white/10 hover-lift group">
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-red-500 to-rose-600 flex items-center justify-center mb-4 shadow-lg shadow-red-500/30 group-hover:scale-110 transition-transform"><i data-lucide="tag" class="w-6 h-6 text-white"></i></div>
+                <h3 class="font-bold text-xl mb-2">Best Price Guarantee</h3>
+                <p class="text-gray-400 text-sm">We compare all operators to give you the best fare. No hidden charges, no booking fees.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ========== HOW IT WORKS ========== -->
+<section class="how-it-works py-24 bg-slate-900/30 relative">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+            <h2 class="font-display text-4xl md:text-5xl font-bold mb-4">How It <span class="text-orange-500">Works</span></h2>
+            <p class="text-gray-400">Book your journey in 4 simple steps</p>
+        </div>
+        <div class="relative">
+            <div class="hidden md:block absolute top-1/2 left-0 right-0 h-0.5 bg-gradient-to-r from-orange-500/0 via-orange-500/50 to-orange-500/0 transform -translate-y-1/2"></div>
+            <div class="grid md:grid-cols-4 gap-8 relative z-10">
+                <div class="text-center group">
+                    <div class="w-20 h-20 mx-auto rounded-2xl bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center mb-4 shadow-lg shadow-orange-500/30 group-hover:scale-110 transition-transform duration-300 relative">
+                        <span class="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-white text-slate-900 font-bold flex items-center justify-center text-sm">1</span>
+                        <i data-lucide="search" class="w-8 h-8 text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">Search</h3>
+                    <p class="text-gray-400 text-sm">Choose your origin, destination and travel date from Tamil Nadu & India routes</p>
+                </div>
+                <div class="text-center group">
+                    <div class="w-20 h-20 mx-auto rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center mb-4 shadow-lg shadow-blue-500/30 group-hover:scale-110 transition-transform duration-300 relative">
+                        <span class="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-white text-slate-900 font-bold flex items-center justify-center text-sm">2</span>
+                        <i data-lucide="armchair" class="w-8 h-8 text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">Select Seat</h3>
+                    <p class="text-gray-400 text-sm">Pick your preferred bus operator and seat from the live seat map</p>
+                </div>
+                <div class="text-center group">
+                    <div class="w-20 h-20 mx-auto rounded-2xl bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center mb-4 shadow-lg shadow-purple-500/30 group-hover:scale-110 transition-transform duration-300 relative">
+                        <span class="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-white text-slate-900 font-bold flex items-center justify-center text-sm">3</span>
+                        <i data-lucide="credit-card" class="w-8 h-8 text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">Pay Securely</h3>
+                    <p class="text-gray-400 text-sm">Pay via UPI, card or net banking. Safe & encrypted transaction</p>
+                </div>
+                <div class="text-center group">
+                    <div class="w-20 h-20 mx-auto rounded-2xl bg-gradient-to-br from-green-500 to-teal-600 flex items-center justify-center mb-4 shadow-lg shadow-green-500/30 group-hover:scale-110 transition-transform duration-300 relative">
+                        <span class="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-white text-slate-900 font-bold flex items-center justify-center text-sm">4</span>
+                        <i data-lucide="ticket" class="w-8 h-8 text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">Get E-Ticket</h3>
+                    <p class="text-gray-400 text-sm">Receive your e-ticket with PNR instantly. Show at boarding point & travel!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ========== CTA SECTION ========== -->
+<section id="contact" class="relative py-24 overflow-hidden">
+    <div class="absolute inset-0 bg-gradient-to-r from-orange-600 to-red-700"></div>
+    <div class="absolute inset-0 opacity-20" style="background-image:url('data:image/svg+xml,%3Csvg width=60 height=60 viewBox=0 0 60 60 xmlns=http://www.w3.org/2000/svg%3E%3Cg fill=none fill-rule=evenodd%3E%3Cg fill=%23ffffff fill-opacity=0.15%3E%3Cpath d=M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')"></div>
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative text-center">
+        <h2 class="font-display text-4xl md:text-5xl font-bold mb-6 text-white">Ready to Travel Tamil Nadu?</h2>
+        <p class="text-xl text-white/90 mb-10 max-w-2xl mx-auto">Book now and enjoy seamless bus travel across Tamil Nadu and all over India.</p>
+        <div class="flex flex-wrap justify-center gap-4">
+            <button onclick="document.getElementById('book').scrollIntoView({behavior:'smooth'})" class="bg-white text-slate-900 px-10 py-4 rounded-xl font-bold flex items-center gap-3 hover:bg-gray-100 transition-colors shadow-xl">
+                <i data-lucide="search" class="w-6 h-6"></i> Search Buses Now
+            </button>
+            <a href="tel:+914222222222" class="bg-white/10 backdrop-blur-md border border-white/30 text-white px-10 py-4 rounded-xl font-bold flex items-center gap-3 hover:bg-white/20 transition-colors">
+                <i data-lucide="phone" class="w-6 h-6"></i> Call: 0422-222-2222
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- ========== FOOTER ========== -->
+<footer class="bg-slate-950 border-t border-white/10 pt-16 pb-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8 mb-12">
+            <div class="col-span-2 lg:col-span-2">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center">
+                        <i data-lucide="bus" class="w-6 h-6 text-white"></i>
+                    </div>
+                    <span class="font-display font-bold text-2xl text-white">BusReserve<span class="text-orange-500">Pro</span></span>
+                </div>
+                <p class="text-gray-400 text-sm leading-relaxed mb-6 max-w-sm">Tamil Nadu's trusted bus booking platform. Covering SETC, KPN, SRS, Parveen Travels, VRL and 150+ operators across India.</p>
+                <div class="flex gap-4">
+                    <a href="#" class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:text-white hover:bg-orange-500 transition-all duration-300"><i data-lucide="facebook" class="w-5 h-5"></i></a>
+                    <a href="#" class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:text-white hover:bg-blue-500 transition-all duration-300"><i data-lucide="twitter" class="w-5 h-5"></i></a>
+                    <a href="#" class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:text-white hover:bg-pink-500 transition-all duration-300"><i data-lucide="instagram" class="w-5 h-5"></i></a>
+                </div>
+            </div>
+            <div>
+                <h4 class="font-bold text-white mb-4">Quick Links</h4>
+                <ul class="space-y-3 text-sm text-gray-400">
+                    <li><a href="#" class="hover:text-orange-500 transition-colors">About Us</a></li>
+                    <li><a href="#routes" class="hover:text-orange-500 transition-colors">Popular Routes</a></li>
+                    <li><a href="#" class="hover:text-orange-500 transition-colors">Bus Operators</a></li>
+                    <li><a href="#" class="hover:text-orange-500 transition-colors">Offers & Deals</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-bold text-white mb-4">Support</h4>
+                <ul class="space-y-3 text-sm text-gray-400">
+                    <li><a href="#" class="hover:text-orange-500 transition-colors">Help Center</a></li>
+                    <li><a href="#" class="hover:text-orange-500 transition-colors">Cancellation Policy</a></li>
+                    <li><a href="#" class="hover:text-orange-500 transition-colors">Refund Status</a></li>
+                    <li><a href="#" class="hover:text-orange-500 transition-colors">Complaints</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-bold text-white mb-4">Contact Us</h4>
+                <ul class="space-y-3 text-sm text-gray-400">
+                    <li class="flex items-center gap-2"><i data-lucide="mail" class="w-4 h-4 text-orange-500"></i><a href="mailto:support@busreservepro.in" class="hover:text-orange-500 transition-colors">support@busreservepro.in</a></li>
+                    <li class="flex items-center gap-2"><i data-lucide="phone" class="w-4 h-4 text-orange-500"></i><a href="tel:+914222222222">0422-222-2222</a></li>
+                    <li class="flex items-start gap-2"><i data-lucide="map-pin" class="w-4 h-4 text-orange-500 mt-0.5"></i><span>47, Avinashi Road,<br>Coimbatore – 641 018,<br>Tamil Nadu</span></li>
+                </ul>
+            </div>
+        </div>
+        <div class="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+            <p class="text-gray-500 text-sm">© 2025 BusReserve Pro. All rights reserved. Made with ❤️ in Coimbatore</p>
+            <div class="flex gap-6 text-sm text-gray-500">
+                <a href="#" class="hover:text-white transition-colors">Privacy Policy</a>
+                <a href="#" class="hover:text-white transition-colors">Terms of Service</a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- Print Styles -->
+<style id="printStyles">
+@media print {
+    body > *:not(#printArea) { display: none !important; }
+    #printArea { display: block !important; }
+}
+</style>
+<div id="printArea" style="display:none;"></div>
+
+<script src="script.js"></script>
+</body>
+</html>
